@@ -29,4 +29,7 @@ Crea el archivo `appsettings.json`:
 }
 ```
 
-Una vez creado el archivo deberás crear un nuevo usuario mediante el siguiente comando: ``dotnet run --register-user``.
+### Pasos
+- Crear nuevo usuario: ```dotnet run --register-user```.
+- Instalar dependencias: ```dotnet restore```.
+- Iniciar: ```dotnet run```.
