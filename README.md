@@ -36,7 +36,7 @@ Crea el archivo `appsettings.json` en la raíz del proyecto con el siguiente con
 ```
 
 > [!NOTE]
-> Para generar la clave JWT en base64 puedes apoyarte de esta [Encode](https://www.base64encode.org/) o puedes usar:
+> Para generar la clave JWT en base64 puedes apoyarte de [encode](https://www.base64encode.org/) o puedes usar:
 > ```bash
 > openssl rand -base64 32
 > ```
