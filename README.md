@@ -31,5 +31,5 @@ Crea el archivo `appsettings.json`:
 
 ### Pasos
 - Crear nuevo usuario: ```dotnet run --register-user```.
-- Descargar dependencias: ```dotnet restore```.
+- Instalar dependencias: ```dotnet restore```.
 - Iniciar: ```dotnet run```.
