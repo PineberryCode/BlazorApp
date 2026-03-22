@@ -1,0 +1,24 @@
+@page "/"
+
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+@code {
+    private void redirectToLogin() {
+        Navigation.NavigateTo("/login");
+    }
+}
+
+<div class="d-flex flex-column justify-content-center align-items-center flex-grow-1" style="min-height: 80vh;">
+    
+    <div class="card border-0">
+        <div id="card-body" class="card-body text-center">
+            <img src="@Assets["images/ceplan-illustration-success.png"]" alt="Logo Launch Ceplan" style="height: 100px; width: 100px;" />
+            <h5 class="card-title">¡Bienvenido, Elliot!</h5>
+            <p class="card-text">Su cuenta en el aplicativo X está activada. Ya puede iniciar sesión.</p>
+            
+            <button class="btn btn-primary w-100" @onclick="redirectToLogin">Iniciar sesión</button>
+        </div>
+    </div>
+
+</div>

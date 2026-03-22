@@ -1,0 +1,27 @@
+#tab-content {
+    padding: 5px 0px 0px 5px;
+}
+
+#tab-dni {
+    background-color: #857F7E !important;
+    border-color: #857F7E;
+    border-radius: 5px 0px 0px 5px;
+}
+
+#text-dni {
+    color: #fff !important;
+}
+
+#tab-ce {
+    background-color: #fff !important;
+    border-color: #857F7E !important;
+    border-radius: 0px 5px 5px 0px;
+}
+
+#text-ce { 
+    color: #857F7E !important;
+}
+
+.err-msg {
+    color: #AF0505;
+}

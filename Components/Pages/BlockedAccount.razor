@@ -1,0 +1,30 @@
+@page "/blocked"
+
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<div class="d-flex flex-column justify-content-center align-items-center flex-grow-1" style="min-height: 80vh;">
+    <div class="card border-0 shadow-sm text-center p-4" style="max-width: 420px; width: 100%;">
+        <div class="card-body">
+            <img src="@Assets["images/ceplan-illustration-support-grand.png"]" alt="Logo Support" style="height: 100px; width: 100px;" />
+            <h5 class="card-title mt-3"><strong>Cuenta bloqueada temporalmente</strong></h5>
+            <p class="card-text text-muted">
+                Haz excedido el número máximo de intentos fallidos (5). 
+                Por seguridad, tu cuenta ha sido bloqueada durante 15 minutos.
+                Intenta nuevamente más tarde.
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private const int WaitTimeMinutes = 1;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        await Task.Delay(TimeSpan.FromMinutes(WaitTimeMinutes));
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

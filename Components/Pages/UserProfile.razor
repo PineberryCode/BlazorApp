@@ -1,0 +1,452 @@
+@page "/profile"
+@layout PrivateMainLayout
+@using BlazorApp.Components.Shared
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+@inject BlazorApp.Controllers.EmployeeController EmployeeController
+@inject BlazorApp.Security.SessionService SessionService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<AuthGuard>
+    @if (_employee == null) {
+        <p>Cargando datos...</p>
+    } else {
+        @if (_showWarning) {
+            <div 
+                class="dimmed-backdrop position-fixed vw-100 vh-100 top-0 start-0 dimmed-backdrop show"
+                style="z-index: 9998;"
+            ></div>
+            <div 
+                class="custom-modal-card position-fixed top-50 start-50 translate-middle bg-white rounded-3 shadow-lg p-4"
+                style="z-index: 9999; min-width: 480px; max-width: 90vw;"
+                >
+                
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    
+                   
+                    <div class="warning-icon-badge rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
+                        style="width: 48px; height: 48px; background-color: #FEF3C7; border: 2px solid #FCD34D;">
+                        
+                        <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
+                    </div>
+                    
+                    <h6 class="mb-0 text-dark fw-bold" style="font-family: inherit;">
+                        Su sesión está a punto de expirar
+                    </h6>
+                </div>
+
+                <div class="mb-4">
+                    <p class="text-muted small mb-0" style="font-family: inherit; line-height: 1.4;">
+                        Por seguridad, su sesión expirará en <strong>60 segundos</strong>. Para continuar, seleccione "Extender sesión".
+                    </p>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-extend-session text-dark fw-bold" 
+                            type="button" 
+                            @onclick="ResetTimer">
+                        Extender sesión
+                    </button>
+                </div>
+
+            </div>
+        }
+
+        <div class="layout" @onmousemove="ResetTimer" @onclick="ResetTimer" @onkeydown="ResetTimer">
+            @* Sidebar *@
+            <div class="sb @(_sidebarOpen ? "expanded" : "")" >
+                <div class="sb-top">
+                    @* Toggle *@
+                    <div class="sb-toggle" @onclick="ToggleSidebar">
+                        <div class="sb-icon">
+                            @if (_sidebarOpen)
+                            {
+                                <i class="bi bi-chevron-left"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-list"></i>
+                            }
+                        </div>
+                    </div>
+                    <div class="sb-item @(_activePage == "home" ? "active" : "")">
+                        <div class="sb-icon">
+                            <i class="bi bi-house-door"></i>
+                        </div>
+                        <span class="sb-label">Principal</span>
+                    </div>
+                    <div class="sb-item @(_activePage == "profile" ? "active" : "")">
+                        <div class="sb-icon">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_40013219_384)">
+                                <path d="M10.4859 9.97054C10.4859 9.71338 10.2672 9.479 9.99984 9.479C9.73248 9.479 9.51373 9.71338 9.51373 9.97054V12.0539H7.56928C7.3007 12.0539 7.08317 12.2869 7.08317 12.5454C7.08317 12.833 7.30058 13.0369 7.56928 13.0369H9.51373V15.1203C9.51373 15.4946 9.73248 15.729 9.99984 15.729C10.2683 15.729 10.4859 15.4959 10.4859 15.2375V13.0955H12.4304C12.699 13.0955 12.9165 12.8625 12.9165 12.604C12.9165 12.3455 12.699 12.1125 12.4304 12.1125H10.4859V9.97054ZM15.265 5.74528L12.0294 2.27848C11.6617 1.88597 11.1695 1.6665 10.653 1.6665H6.11095C5.03725 1.6665 4.1665 2.59912 4.1665 3.74984L4.1667 16.2498C4.1667 17.4006 5.03745 18.3332 6.11115 18.3332H13.8887C14.9627 18.3332 15.8332 17.4006 15.8332 16.2498V7.21663C15.8332 6.66325 15.6296 6.13591 15.265 5.74528ZM10.9721 2.77588C11.1081 2.82686 11.2353 2.90107 11.3403 3.01348L14.576 6.48027C14.6817 6.59163 14.7516 6.72835 14.7971 6.87484H11.4582C11.1908 6.87484 10.9721 6.64046 10.9721 6.354V2.77588ZM14.8609 16.2498C14.8609 16.8241 14.4247 17.2915 13.8887 17.2915H6.11095C5.57501 17.2915 5.13873 16.8241 5.13873 16.2498V3.74984C5.13873 3.17562 5.57501 2.70817 6.11095 2.70817H9.99984V6.354C9.99984 7.21663 10.653 7.9165 11.4582 7.9165H14.8609V16.2498Z" fill="#C04244"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_40013219_384">
+                                <rect width="20" height="20" fill="white"/>
+                                </clipPath>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="sb-label">Mis datos</span>
+                    </div>
+                    <div class="sb-item @(_activePage == "docs" ? "active" : "")">
+                        <div class="sb-icon">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14.9478 4.27067H13.3853C12.9539 4.27067 12.604 4.62028 12.604 5.05192V6.61442C12.604 7.04574 12.9539 7.39567 13.3853 7.39567H14.9478C15.3791 7.39567 15.729 7.04574 15.729 6.61442V5.05192C15.729 4.62028 15.3807 4.27067 14.9478 4.27067ZM14.6873 6.354H13.6457V5.31234H14.6873V6.354ZM6.61442 12.604H5.05192C4.62061 12.604 4.27067 12.9536 4.27067 13.3853V14.9478C4.27067 15.3791 4.62061 15.729 5.05192 15.729H6.61442C7.04574 15.729 7.39567 15.3791 7.39567 14.9478V13.3853C7.39567 12.9523 7.04736 12.604 6.61442 12.604ZM6.354 14.6873H5.31234V13.6457H6.354V14.6873ZM16.2498 1.6665H7.9165C6.76742 1.6665 5.83317 2.59912 5.83317 3.74984V4.27067C5.83317 4.55843 6.06755 4.7915 6.354 4.7915C6.64046 4.7915 6.87484 4.55843 6.87484 4.27067V3.74984C6.87484 3.17464 7.34131 2.70817 7.9165 2.70817H16.2498C16.825 2.70817 17.2915 3.17464 17.2915 3.74984V17.8123C17.2915 18.1 17.5247 18.3332 17.8123 18.3332C18.1 18.3332 18.3332 18.1 18.3332 17.8123V3.74984C18.3332 2.59912 17.3989 1.6665 16.2498 1.6665ZM14.9478 8.43734H13.3853C12.9539 8.43734 12.604 8.78695 12.604 9.21859V10.7811C12.604 11.2124 12.9539 11.5623 13.3853 11.5623H14.9478C15.3791 11.5623 15.729 11.2124 15.729 10.7811V9.21859C15.729 8.78565 15.3807 8.43734 14.9478 8.43734ZM14.6873 10.5207H13.6457V9.479H14.6873V10.5207ZM14.9478 12.604H13.3853C12.9539 12.604 12.604 12.9536 12.604 13.3853V14.9478C12.604 15.3791 12.9539 15.729 13.3853 15.729H14.9478C15.3791 15.729 15.729 15.3791 15.729 14.9478V13.3853C15.729 12.9523 15.3807 12.604 14.9478 12.604ZM14.6873 14.6873H13.6457V13.6457H14.6873V14.6873ZM6.61442 8.43734H5.05192C4.62061 8.43734 4.27067 8.78565 4.27067 9.21859V10.7811C4.27067 11.2124 4.62061 11.5623 5.05192 11.5623H6.61442C7.04574 11.5623 7.39567 11.2124 7.39567 10.7811V9.21859C7.39567 8.78565 7.04736 8.43734 6.61442 8.43734ZM6.354 10.5207H5.31234V9.479H6.354V10.5207ZM7.9165 5.83317H3.74984C2.59912 5.83317 1.6665 6.76742 1.6665 7.9165V17.8123C1.6665 18.0988 1.89971 18.3332 2.18734 18.3332C2.47497 18.3332 2.70817 18.0988 2.70817 17.8123V7.9165C2.70817 7.34131 3.17464 6.87484 3.74984 6.87484H7.9165C8.4917 6.87484 8.95817 7.34131 8.95817 7.9165V17.8123C8.95817 18.0988 9.19255 18.3332 9.479 18.3332C9.76546 18.3332 9.99984 18.1 9.99984 17.8123V7.9165C9.99984 6.76742 9.06559 5.83317 7.9165 5.83317Z" fill="#3A424A"/>
+                            </svg>
+                        </div>
+                        <span class="sb-label">IDK</span>
+                    </div>
+                    <div class="sb-item @(_activePage == "settings" ? "active" : "")">
+                        <div class="sb-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <span class="sb-label">Buscar</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <p class="profile-breadcrumb">Perfil de usuario</p>
+                <h3 class="profile-title">Perfil de usuario</h3>
+
+                <div class="profile-identity">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div class="profile-identity-info">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="profile-fullname">@_employee.FatherLastname @_employee.MotherLastname, @_employee.Names</span>
+                            <span class="profile-badge">Activo</span>
+                        </div>
+                        <p class="profile-role">@_employee.TypeHire</p>
+                    </div>
+                </div>
+
+                <div class="profile-tabs">
+                    <span class="profile-tab active">Información básica</span>
+                    <span class="profile-tab">Responsabilidades</span>
+                    <span class="profile-tab">Historial de responsabilidades</span>
+                </div>
+
+                <div class="profile-grid">
+
+                    <div class="profile-field">
+                        <label>Nombres</label>
+                        <div class="profile-input">@_employee.Names</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Primer Apellido</label>
+                        <div class="profile-input">@_employee.FatherLastname</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Segundo Apellido</label>
+                        <div class="profile-input">@_employee.MotherLastname</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Tipo de Documento de Identidad</label>
+                        <div class="profile-input">DNI</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>N° de Documento de Identidad</label>
+                        <div class="profile-input">@_employee.Dni</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Fecha de nacimiento</label>
+                        <div class="profile-input">@_employee.Birthday.ToString("dd / MM / yyyy")</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Nacionalidad</label>
+                        <div class="profile-input">@_employee.Nationality</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Sexo</label>
+                        <div class="profile-input">@(_employee.Genre == "M" ? "Masculino" : "Femenino")</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Correo electrónico principal</label>
+                        @if (_editingEmail)
+                        {
+                            <div class="d-flex gap-2">
+                                <input class="profile-input-edit form-control"
+                                    @bind="_emailEdit"
+                                    placeholder="Correo secundario" />
+                                <button class="btn btn-sm btn-primary" @onclick="SaveChanges">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="profile-input d-flex justify-content-between align-items-center">
+                                <span>@(_employee.Email ?? "—")</span>
+                                <button class="btn-edit" @onclick="() => _editingEmail = true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Correo electrónico secundario <span class="profile-optional">(Opcional)</span></label>
+                        @if (_editingSecondEmail)
+                        {
+                            <div class="d-flex gap-2">
+                                <input class="profile-input-edit form-control"
+                                    @bind="_secondEmailEdit"
+                                    placeholder="Correo secundario" />
+                                <button class="btn btn-sm btn-primary" @onclick="SaveChanges">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="profile-input d-flex justify-content-between align-items-center">
+                                <span>@(_employee.SecondEmail ?? "—")</span>
+                                <button class="btn-edit" @onclick="() => _editingSecondEmail = true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Teléfono Móvil</label>
+                        @if (_editingPhone)
+                        {
+                            <div class="d-flex gap-2">
+                                <input class="profile-input-edit form-control"
+                                    @bind="_phoneEdit"
+                                    placeholder="Teléfono secundario" />
+                                <button class="btn btn-sm btn-primary" @onclick="SaveChanges">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="profile-input d-flex justify-content-between align-items-center">
+                                <span>@(_employee.PhoneNumber ?? "—")</span>
+                                <button class="btn-edit" @onclick="() => _editingPhone = true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Teléfono secundario <span class="profile-optional">(Opcional)</span></label>
+                        @if (_editingSecondPhone)
+                        {
+                            <div class="d-flex gap-2">
+                                <input class="profile-input-edit form-control"
+                                    @bind="_secondPhoneEdit"
+                                    placeholder="Teléfono secundario" />
+                                <button class="btn btn-sm btn-primary" @onclick="SaveChanges">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="profile-input d-flex justify-content-between align-items-center">
+                                <span>@(_employee.SecondPhoneNumber ?? "—")</span>
+                                <button class="btn-edit" @onclick="() => _editingSecondPhone = true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Tipo de Contratación</label>
+                        <div class="profile-input">@_employee.TypeHire</div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Fecha de contratación</label>
+                        <div class="profile-input">@_employee.HireDate.ToString("dd / MM / yyyy")</div>
+                    </div>
+                    
+                    @if (_saveSuccess)
+                    {
+                        <div class="alert alert-success py-2 mb-3">
+                            <i class="bi bi-check-circle me-2"></i> Datos actualizados correctamente.
+                        </div>
+                    }
+                    @if (_saveError)
+                    {
+                        <div class="alert alert-danger py-2 mb-3">
+                            <i class="bi bi-x-circle me-2"></i> Error al guardar. Intenta nuevamente.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</AuthGuard>
+
+@code {
+    private BlazorApp.Models.Employee ? _employee;
+
+    // Optional fields
+    private bool _editingEmail = false;
+    private bool _editingSecondEmail = false;
+    private bool _editingPhone = false;
+    private bool _editingSecondPhone = false;
+    private string _emailEdit = string.Empty;
+    private string? _secondEmailEdit;
+    private string _phoneEdit = string.Empty;
+    private string? _secondPhoneEdit;
+    private bool _saveSuccess = false;
+    private bool _saveError = false;
+
+    private void CancelEdit()
+    {
+        _editingEmail = false;
+        _editingPhone = false;
+        _editingSecondEmail = false;
+        _editingSecondPhone = false;
+        _emailEdit = _employee!.Email;
+        _phoneEdit = _employee!.PhoneNumber;
+        _secondEmailEdit = _employee!.SecondEmail;
+        _secondPhoneEdit = _employee!.SecondPhoneNumber;
+    }
+
+    private async Task SaveChanges()
+    {
+        _saveSuccess = false;
+        _saveError   = false;
+
+        bool ok = await EmployeeController.UpdateOptionalFields(
+            dni: _employee!.Dni,
+            email: _editingEmail ? _emailEdit : _employee.Email,
+            secondEmail: _editingSecondEmail ? _secondEmailEdit : _employee.SecondEmail,
+            phoneNumber: _editingPhone ? _phoneEdit : _employee.PhoneNumber,
+            secondPhoneNumber: _editingSecondPhone ? _secondPhoneEdit : _employee.SecondPhoneNumber
+        );
+
+        if (ok)
+        {
+            if (_editingEmail) _employee.Email = _emailEdit;
+            if (_editingSecondEmail) _employee.SecondEmail = _secondEmailEdit;
+            if (_editingPhone) _employee.PhoneNumber = _phoneEdit;
+            if (_editingSecondPhone) _employee.SecondPhoneNumber = _secondPhoneEdit;
+
+            _saveSuccess        = true;
+            _editingEmail = false;
+            _editingSecondEmail = false;
+            _editingPhone = false;
+            _editingSecondPhone = false;
+        }
+        else
+        {
+            _saveError = true;
+        }
+    }
+
+
+    private bool _sidebarOpen = false;
+    private string _activePage = "profile";
+
+    private Timer? _inactivityTimer;
+    private Timer? _countdownTimer;
+    private bool _showWarning = false;
+
+    private const int InactivityMinutes = 1;
+    private const int WarningMinutes = 1;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender) return;
+
+        _employee = new BlazorApp.Models.Employee {
+            Dni = await SessionService.GetClaimAsync("dni") ?? "",
+            Names = await SessionService.GetClaimAsync("names") ?? "",
+            FatherLastname = await SessionService.GetClaimAsync("father_lastname") ?? "",
+            MotherLastname = await SessionService.GetClaimAsync("mother_lastname") ?? "",
+            Genre = await SessionService.GetClaimAsync("genre") ?? "",
+            Birthday = DateTime.TryParse(await SessionService.GetClaimAsync("birthday"), out var d) 
+               ? DateOnly.FromDateTime(d) 
+               : DateOnly.FromDateTime(DateTime.Now),
+            Email = await SessionService.GetClaimAsync("email") ?? "",
+            SecondEmail = await SessionService.GetClaimAsync("second_email") ?? "",
+            PhoneNumber = await SessionService.GetClaimAsync("phone_number") ?? "",
+            SecondPhoneNumber = await SessionService.GetClaimAsync("second_phone_number") ?? "",
+            TypeHire = await SessionService.GetClaimAsync("type_hire") ?? "",
+            HireDate = DateTime.TryParse(await SessionService.GetClaimAsync("hire_date"), out var d2)
+                ? DateOnly.FromDateTime(d2)
+                : DateOnly.FromDateTime(DateTime.Now),
+            Nationality = await SessionService.GetClaimAsync("nationality") ?? ""
+        };
+        StartInactivityTimer();
+        StateHasChanged();
+    }
+
+    private void StartInactivityTimer() {
+        _inactivityTimer?.Dispose();
+        _countdownTimer?.Dispose();
+        _showWarning = false;
+
+        _inactivityTimer = new Timer(async _ => {
+            _showWarning = true;
+            await InvokeAsync(StateHasChanged);
+
+            _countdownTimer = new Timer(async _ =>{
+                await HandleSignOut();
+            },
+            null,
+            TimeSpan.FromMinutes(WarningMinutes),
+            Timeout.InfiniteTimeSpan
+            );
+        },
+        null,
+        TimeSpan.FromMinutes(InactivityMinutes),
+        Timeout.InfiniteTimeSpan
+        );
+    }
+
+    private void ResetTimer() {
+        StartInactivityTimer();
+        StateHasChanged();
+    }
+
+    private void ToggleSidebar() {
+        _sidebarOpen = !_sidebarOpen;
+    }
+
+    private async Task HandleSignOut() {
+        _inactivityTimer?.Dispose();
+        _countdownTimer?.Dispose();
+        await SessionService.ClearSessionAsync();
+        await InvokeAsync(() => Navigation.NavigateTo("/login?sessionExpired=true", forceLoad: true));
+    }
+
+    public void Dispose() 
+    {
+        _inactivityTimer?.Dispose();
+        _countdownTimer?.Dispose();
+    }
+}

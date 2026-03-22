@@ -1,0 +1,11 @@
+#card-body {
+    width: 296px;
+    height: 304px;
+    border: none;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+}

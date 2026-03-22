@@ -1,0 +1,32 @@
+@inject BlazorApp.Security.SessionService SessionService
+@inject NavigationManager Navigation
+
+@if (_isAuthenticated) {
+    @ChildContent
+} else if (_checked) {
+    @*No está autenticado*@
+} else {
+    <p>Verificando sesión</p>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment ? ChildContent { get; set; }
+
+    private bool _isAuthenticated = false;
+
+    private bool _checked = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _isAuthenticated = await SessionService.IsAuthenticatedAsync();
+        _checked = true;
+        if (!_isAuthenticated) {
+            Navigation.NavigateTo("/login", forceLoad: true);
+        } else {
+            StateHasChanged();
+        }
+    }
+}
