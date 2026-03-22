@@ -36,11 +36,11 @@ Crea el archivo `appsettings.json` en la raíz del proyecto con el siguiente con
 ```
 
 > [!NOTE]
-> Para generar la clave JWT en base64 puedes apoyarte de [encode](https://www.base64encode.org/){:target="_blank"} o puedes usar:
+> Para generar la clave JWT en base64 puedes apoyarte de <a href="https://www.base64encode.org/" target="_blank">encode</a> o puedes usar:
 > ```bash
 > openssl rand -base64 32
 > ```
-> Para la contraseña de correo, genera una [clave de aplicación en Gmail](https://myaccount.google.com/apppasswords){:target="_blank"}.
+> Para la contraseña de correo, genera una <a href="https://myaccount.google.com/apppasswords" target="_blank">clave de aplicación en Gmail</a>.
  
 ---
  
