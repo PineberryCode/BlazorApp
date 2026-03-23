@@ -65,6 +65,6 @@ dotnet run
 
 ## ✨ Características
  
-- 🔐 **Seguridad de endpoints** — La ruta `/profile` y demás páginas privadas están protegidas; redirige al login si no hay sesión activa.
+- 🔐 **Seguridad de endpoints** — La ruta `/profile` es una página protegida; redirige al login si no hay sesión activa.
 - 🔑 **Hash de contraseñas** — Se utiliza **Argon2** para hashear las contraseñas. Al iniciar sesión, se hashea el valor ingresado y se compara con el hash almacenado en la base de datos (sin revertir en ningún momento).
 - 📧 **Notificaciones por correo** — Se envía un correo automático cuando el usuario supera el número máximo de intentos fallidos al iniciar sesión.
